@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Maven build file for EventForge. Declares the libraries, test framework and plugins the project uses -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Project identity. The SNAPSHOT suffix marks work in progress. -->
+  <groupId>eventforge</groupId>
+  <artifactId>eventforge</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>EventForge</name>
+  <description>Convention management and registration system</description>
+
+  <!-- Settings shared by the rest of this file. Change a version here and every use of it updates. -->
+  <properties>
+    <maven.compiler.release>25</maven.compiler.release>          <!-- compile for JDK 25 (NFR-6) -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  <!-- avoids odd characters on Windows -->
+
+    <!-- Library versions. Check Maven Central before first use. -->
+    <javafx.version>25.0.2</javafx.version>                      <!-- matches JDK 25 -->
+    <sqlite.version>3.53.2.1</sqlite.version>
+    <junit.version>6.1.3</junit.version>
+
+    <!-- Class that starts the JavaFX application. Not written yet, so mvn javafx:run fails until it exists. -->
+    <app.mainClass>eventforge.ui.App</app.mainClass>
+  </properties>
+
+  <!-- Keeps every JUnit artifact on one matching version. -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- Libraries downloaded automatically by Maven. -->
+  <dependencies>
+    <!-- JavaFX controls: buttons, tables and text fields for the presentation layer. -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <!-- JavaFX FXML: loads the screen layout files in src/main/resources. -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+
+    <!-- SQLite JDBC driver. Bundles the SQLite engine, so nothing else needs installing (NFR-3, NFR-6). -->
+    <dependency>
+      <groupId>org.xerial</groupId>
+      <artifactId>sqlite-jdbc</artifactId>
+      <version>${sqlite.version}</version>
+    </dependency>
+
+    <!-- JUnit 6 (Jupiter) for unit and database tests. Test scope: left out of the shipped application. -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Compiles src/main/java and src/test/java. Run with: mvn compile -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.14.1</version>
+      </plugin>
+
+      <!-- Runs the JUnit tests. Run with: mvn test -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.5.4</version>
+        <configuration>
+          <!-- Quiets the JDK 24+ warning shown when sqlite-jdbc loads its native library. -->
+          <argLine>--enable-native-access=ALL-UNNAMED</argLine>
+        </configuration>
+      </plugin>
+
+      <!-- Launches the application with JavaFX on the module path. Run with: mvn javafx:run -->
+      <plugin>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-maven-plugin</artifactId>
+        <version>0.0.8</version>
+        <configuration>
+          <mainClass>${app.mainClass}</mainClass>
+          <options>
+            <!-- Same native-access flag as the tests, for JavaFX and SQLite at run time. -->
+            <option>--enable-native-access=ALL-UNNAMED</option>
+          </options>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
