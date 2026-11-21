@@ -41,6 +41,9 @@ public class Attendee {
     public BadgeType getBadgeType() { return badgeType; }
     public LocalDateTime getCheckedInAt() { return checkedInAt; }
 
+    /** True once the attendee has checked in at the convention (UC-7). Shown as "Present" on screen. */
+    public boolean isCheckedIn() { return checkedInAt != null; }
+
     /** Called by the DAO after the database assigns the generated ID. */
     public void setAttendeeId(int attendeeId) { this.attendeeId = attendeeId; }
 }
